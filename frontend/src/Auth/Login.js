@@ -1,18 +1,46 @@
-import {Button} from 'react-bootstrap'
-import {useState} from 'react'
-import {FaUser} from 'react-icons/fa'
+import { Button } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { FaUser } from "react-icons/fa";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { login, reset } from "./AuthSlice";
 
 function Login() {
-  const [name, setName] = useState('')
+  const [formData, setFormData] = useState("");
+
+  const {name} = formData
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { user, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(()=>{
+    if(isError){
+      toast.error(message)
+    }
+
+    if(isSuccess || user){
+      navigate('/looged')
+    }
+
+    dispatch(reset())
+  }, [user, isError, isSuccess, message, navigate, dispatch])
 
   const onSubmit = (e) => {
     e.preventDefault();
-  }
 
-  const onChange = (e)=> {
-    setName(e.target.value)
-  }
+    const userData = {name}
 
+    dispatch(login(userData));
+  };
+
+  const onChange = (e) => {
+    setFormData(e.target.value);
+  };
 
   return (
     <>
@@ -24,20 +52,18 @@ function Login() {
           <form onSubmit={onSubmit}>
             <input
               type="text"
-              id="name"
-              name="name"
               value={name}
               placeholder="Enter your name"
               onChange={onChange}
             />
+            <Button tupe="submit" variant="success">
+              Entrence
+            </Button>
           </form>
         </section>
-        <Button tupe="submit" variant="success">
-          Entrence
-        </Button>
       </div>
     </>
   );
 }
 
-export default Login
+export default Login;
